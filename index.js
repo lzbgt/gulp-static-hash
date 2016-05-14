@@ -1,5 +1,4 @@
 'use strict';
-
 var fs = require('fs');
 var path = require('path');
 var crypto = require('crypto');
@@ -52,6 +51,8 @@ module.exports = function (options) {
 		contents = file.contents.toString().replace(reg, function (content, filePath, ext, other) {
 			var fullPath;
 
+      // console.log(content + 1, filePath + 2, ext + 3, other + 4, JSON.stringify(options) + 5);
+
 			if (/^\//.test(filePath)) {
 				fullPath = path.resolve(asset, filePath.slice(1));
 			} else {
@@ -65,11 +66,17 @@ module.exports = function (options) {
 
 					return content.replace(path.basename(filePath), buildMD5File(fullPath));
 				} else {
-					var hashURL = url.parse(filePath + other, true);
-					hashURL.search = '';
-					hashURL.query.v = sha1(fullPath);
+					//var hashURL = url.parse(filePath + other, true);
+					//hashURL.search = '';
+					//hashURL.query.v = sha1(fullPath);
+          var extIdx = filePath.lastIndexOf(ext) - 1;
 
-					return content.replace(other, '').replace(filePath, url.format(hashURL));
+          var result = content.replace(other, '').replace(filePath, filePath.slice(0,extIdx) + '_md5' + sha1(fullPath) + '.' + ext);
+
+          //console.log('fullPath: ', fullPath, 'content: ', content, 'filePath: ', filePath, 'result: ', result);
+
+					//return content.replace(other, '').replace(filePath, url.format(hashURL));
+          return result
 				}
 			} else {
 				return content;
